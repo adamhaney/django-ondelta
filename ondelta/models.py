@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.timezone import now
 
 
-class DeltaNotifier(models.Model):
+class OnDeltaMixin(models.Model):
     _delta_notification_history = models.TextField(default='', null=True, editable=False)
 
     class Meta:
@@ -65,7 +65,7 @@ class DeltaNotifier(models.Model):
         return old_value != new_value
 
     def _delta_call_post_change(self, field, old_value, new_value):
-        getattr(self, "{}_post_change".format(field))(old_value, new_value)
+        getattr(self, "ondelta_{}".format(field))(old_value, new_value)
 
     def get_most_recent_historical_revision(self):
         return self.get_history().pop()
