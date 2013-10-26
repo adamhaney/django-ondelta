@@ -16,13 +16,15 @@ setup(
     version="0.1",
     author="Adam Haney",
     author_email="adam.haney@campusbellhops.com",
-    description=("A mixin that allows models to register methods that are notified ")
+    description=("A mixin that allows models to register methods that are notified "),
     license="LGPL",
     keywords="Django",
     url="",
     packages=['ondelta'],
     long_description=read('README.md'),
     dependency_links = [],
-    install_requires=[],
+    install_requires=[
+        'django'
+        ],
     classifiers=[]
 )
