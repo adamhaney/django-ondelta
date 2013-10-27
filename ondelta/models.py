@@ -39,7 +39,6 @@ class OnDeltaMixin(models.Model):
         fields_changed = self._ondelta_get_differences()
         for field, changes in fields_changed.items():
             method_name = "ondelta_{}".format(field)
-            print method_name
             if hasattr(self, method_name):
                 getattr(self, method_name)(changes['old'], changes['new'])
 
