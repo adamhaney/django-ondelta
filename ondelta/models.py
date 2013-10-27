@@ -25,7 +25,6 @@ class OnDeltaMixin(models.Model):
 
     def _ondelta_get_differences(self):
         fields_changed = {}
-        print 
         for field in self._ondelta_fields_to_watch():
             snapshot_value = getattr(self.model_snapshot, field)
             current_value = getattr(self, field)
@@ -53,7 +52,7 @@ class OnDeltaMixin(models.Model):
         aggregate field changes should override this method
         """
         pass
-        
+
     def save(self, *args, **kwargs):
         self._ondelta_dispatch_notifications()
         self._ondelta_snapshot_state()
