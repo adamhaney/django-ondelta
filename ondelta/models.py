@@ -3,7 +3,8 @@ import logging
 
 from django.db import models
 
-logger  = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 class OnDeltaMixin(models.Model):
 
@@ -69,4 +70,4 @@ class OnDeltaMixin(models.Model):
         super_return = super(OnDeltaMixin, self).save(*args, **kwargs)
         self._ondelta_dispatch_notifications()
         self._ondelta_snapshot_state()
-        return super_return 
+        return super_return

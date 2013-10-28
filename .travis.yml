@@ -7,6 +7,6 @@ python:
 script:
   - python setup.py install 
   - pip install -r test_requirements.txt
-  - pep8 ondelta
+  - pep8 ondelta --ignore=E501
   - pyflakes ondelta
   - cd testproject && python manage.py test
