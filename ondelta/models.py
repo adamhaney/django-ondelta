@@ -53,6 +53,7 @@ class OnDeltaMixin(models.Model):
         pass
 
     def save(self, *args, **kwargs):
+        super_return = super(OnDeltaMixin, self).save(*args, **kwargs)
         self._ondelta_dispatch_notifications()
         self._ondelta_snapshot_state()
-        return super(OnDeltaMixin, self).save(*args, **kwargs)
+        return super_return 
