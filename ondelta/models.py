@@ -1,6 +1,9 @@
 import copy
+import logging
+
 from django.db import models
 
+logger  = logging.getLogger(__name__)
 
 class OnDeltaMixin(models.Model):
 
@@ -21,13 +24,23 @@ class OnDeltaMixin(models.Model):
         for, excludes fields added by tests (nose adds 'c') and the id
         which is an implementation detail of django
         """
-        return set(self._meta.get_all_field_names()) - set(['c', 'id'])
+        return set(self.model_snapshot._meta.get_all_field_names()) - set(['c', 'id'])
 
     def _ondelta_get_differences(self):
         fields_changed = {}
         for field in self._ondelta_fields_to_watch():
-            snapshot_value = getattr(self.model_snapshot, field)
-            current_value = getattr(self, field)
+            try:
+                snapshot_value = getattr(self.model_snapshot, field)
+            except:
+                logger.exception("Failed to retrieve the old value of {}.{} for comparison".format(__name__, field))
+                continue
+
+            try:
+                current_value = getattr(self, field)
+            except:
+                logger.exception("Failed to retrieve the new value of {}.{} for comparison".format(__name__, field))
+                continue
+
             if snapshot_value != current_value:
                 fields_changed[field] = {
                     'old': snapshot_value,
