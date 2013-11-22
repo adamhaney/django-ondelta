@@ -21,7 +21,7 @@ def read(fname):
 
 setup(
     name="ondelta",
-    version="0.2.0",
+    version="0.2.1",
     author="Adam Haney",
     author_email="adam.haney@campusbellhops.com",
     description=DESCRIPTION,
@@ -34,5 +34,13 @@ setup(
     install_requires=[
         'django'
         ],
-    classifiers=[],
+    classifiers=[
+        'Intended Audience :: Developers',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        ],
 )
