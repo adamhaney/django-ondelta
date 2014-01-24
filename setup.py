@@ -21,7 +21,7 @@ def read(fname):
 
 setup(
     name="ondelta",
-    version="0.2.1",
+    version="0.2.2",
     author="Adam Haney",
     author_email="adam.haney@campusbellhops.com",
     description=DESCRIPTION,

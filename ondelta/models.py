@@ -17,7 +17,7 @@ class OnDeltaMixin(models.Model):
         return super_return
 
     def _ondelta_snapshot_state(self):
-        self.model_snapshot = copy.deepcopy(self)
+        self.model_snapshot = copy.copy(self)
 
     def _ondelta_fields_to_watch(self):
         """
