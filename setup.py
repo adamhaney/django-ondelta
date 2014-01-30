@@ -20,15 +20,15 @@ def read(fname):
         return DESCRIPTION
 
 setup(
-    name="ondelta",
-    version="0.2.2",
-    author="Adam Haney",
-    author_email="adam.haney@campusbellhops.com",
+    name="<PROJECT NAME>",
+    version="<VERSION>",
+    author="<AUTHOR>",
+    author_email="<AUTHOR EMAIL>",
     description=DESCRIPTION,
     license="LGPL",
     keywords="Django, observer",
-    url="",
-    packages=['ondelta'],
+    url="<PROJECT URL>",
+    packages=['<MODULE DIRECTORIES>'],
     long_description=read('README.md'),
     dependency_links = [],
     install_requires=[
