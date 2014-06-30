@@ -12,12 +12,8 @@ class OnDeltaMixin(models.Model):
         abstract = True
 
     def __init__(self, *args, **kwargs):
-        super_return = super(OnDeltaMixin, self).__init__(*args, **kwargs)
-        self._ondelta_snapshot_state()
-        return super_return
-
-    def _ondelta_snapshot_state(self):
-        self.model_snapshot = copy.copy(self)
+        super(OnDeltaMixin, self).__init__(*args, **kwargs)
+        self._ondelta_shadow = copy.copy(self)
 
     def _ondelta_fields_to_watch(self):
         """
@@ -25,13 +21,13 @@ class OnDeltaMixin(models.Model):
         for, excludes fields added by tests (nose adds 'c') and the id
         which is an implementation detail of django
         """
-        return set(self.model_snapshot._meta.get_all_field_names()) - set(['c', 'id'])
+        return set(self._ondelta_shadow._meta.get_all_field_names()) - set(['c', 'id'])
 
     def _ondelta_get_differences(self):
         fields_changed = {}
         for field in self._ondelta_fields_to_watch():
             try:
-                snapshot_value = getattr(self.model_snapshot, field)
+                snapshot_value = getattr(self._ondelta_shadow, field)
             except:
                 logger.exception("Failed to retrieve the old value of {}.{} for comparison".format(__name__, field))
                 continue
@@ -50,12 +46,20 @@ class OnDeltaMixin(models.Model):
         return fields_changed
 
     def _ondelta_dispatch_notifications(self):
+
         fields_changed = self._ondelta_get_differences()
+
         for field, changes in fields_changed.items():
+
+            # Update the snapshot so if the method calls save() we won't recurse
+            setattr(self._ondelta_shadow, field, changes['new'])
+
+            # Call individual field ondelta methods
             method_name = "ondelta_{}".format(field)
             if hasattr(self, method_name):
                 getattr(self, method_name)(changes['old'], changes['new'])
 
+        # If any fields changed, call aggregate ondelta_all method
         if fields_changed.keys():
             self.ondelta_all(fields_changed=fields_changed)
 
@@ -69,5 +73,4 @@ class OnDeltaMixin(models.Model):
     def save(self, *args, **kwargs):
         super_return = super(OnDeltaMixin, self).save(*args, **kwargs)
         self._ondelta_dispatch_notifications()
-        self._ondelta_snapshot_state()
         return super_return
