@@ -4,3 +4,5 @@
 local_settings.py
 ondelta.egg-info/
 venv/
+.idea/
+.tox/

@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
 
-DESCRIPTION = ("A mixin that allows models to register methods that are notified when their values change, or register a method that is notified of all changes. Basically, OnDeltaMixin implements the observer pattern.")
+
+DESCRIPTION = (
+    "A mixin that allows models to register methods that are notified when their values change,"
+    "or register a method that is notified of all changes. Basically, OnDeltaMixin implements"
+    "the observer pattern."
+)
+
 
 def read(fname):
     """
@@ -21,19 +27,19 @@ def read(fname):
 
 setup(
     name="ondelta",
-    version="0.2.2",
+    version="0.3.0",
     author="Adam Haney",
-    author_email="adam.haney@campusbellhops.com",
+    author_email="adam.haney@getbellhops.com",
     description=DESCRIPTION,
     license="LGPL",
     keywords="Django, observer",
-    url="",
+    url="https://github.com/adamhaney/django-ondelta",
     packages=['ondelta'],
     long_description=read('README.md'),
-    dependency_links = [],
+    dependency_links=[],
     install_requires=[
         'django'
-        ],
+    ],
     classifiers=[
         'Intended Audience :: Developers',
         'Programming Language :: Python',
@@ -42,5 +48,6 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
-        ],
+        'Programming Language :: Python :: 3.4',
+    ],
 )
