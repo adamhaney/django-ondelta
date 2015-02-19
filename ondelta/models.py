@@ -18,6 +18,8 @@ class OnDeltaMixin(models.Model):
         super(OnDeltaMixin, self).__init__(*args, **kwargs)
         if self.pk:
             self._ondelta_take_snapshot()
+        else:
+            self._ondelta_shadow = None
 
     @cached_property
     def _ondelta_fields_to_watch(self):
@@ -35,6 +37,8 @@ class OnDeltaMixin(models.Model):
         self._ondelta_shadow = copy.copy(self)
 
     def _ondelta_get_differences(self):
+
+        assert self._ondelta_shadow is not None
 
         fields_changed = dict()
 
@@ -96,12 +100,11 @@ class OnDeltaMixin(models.Model):
         pass
 
     def save(self, *args, **kwargs):
-        already_saved = self.pk
         super_return = super(OnDeltaMixin, self).save(*args, **kwargs)
-        if already_saved:
+        if self._ondelta_shadow is None:
+            self._ondelta_take_snapshot()
+        else:
             fields_changed = self._ondelta_get_differences()
             if fields_changed:
                 self._ondelta_dispatch_notifications(fields_changed)
-        else:
-            self._ondelta_take_snapshot()
         return super_return
