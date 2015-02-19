@@ -1,9 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import copy
 import logging
 
 from django.db import models
+from django.utils.functional import cached_property
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('ondelta')
 
 
 class OnDeltaMixin(models.Model):
@@ -13,55 +16,77 @@ class OnDeltaMixin(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(OnDeltaMixin, self).__init__(*args, **kwargs)
-        self._ondelta_shadow = copy.copy(self)
+        if self.pk:
+            self._ondelta_take_snapshot()
 
+    @cached_property
     def _ondelta_fields_to_watch(self):
         """
         This gives us all the fields that we should care about changes
         for, excludes fields added by tests (nose adds 'c') and the id
-        which is an implementation detail of django
+        which is an implementation detail of django.
+
+        Child classes may override this method to limit the set of
+        fields watched by ondelta.
         """
-        return set(self._ondelta_shadow._meta.get_all_field_names()) - set(['c', 'id'])
+        return [f.name for f in self._meta.fields if f.name not in {'c', 'id'}]
+
+    def _ondelta_take_snapshot(self):
+        self._ondelta_shadow = copy.copy(self)
 
     def _ondelta_get_differences(self):
-        fields_changed = {}
-        for field in self._ondelta_fields_to_watch():
+
+        fields_changed = dict()
+
+        for field_name in self._ondelta_fields_to_watch:
+
             try:
-                snapshot_value = getattr(self._ondelta_shadow, field)
+                snapshot_value = getattr(self._ondelta_shadow, field_name)
             except:
-                logger.exception("Failed to retrieve the old value of {}.{} for comparison".format(__name__, field))
+                logger.exception("Failed to retrieve the old value of {model}.{field} for comparison".format(
+                    model=self.__class__.__name__,
+                    field=field_name,
+                ))
                 continue
 
             try:
-                current_value = getattr(self, field)
+                current_value = getattr(self, field_name)
             except:
-                logger.exception("Failed to retrieve the new value of {}.{} for comparison".format(__name__, field))
+                logger.exception("Failed to retrieve the new value of {model}.{field} for comparison".format(
+                    model=self.__class__.__name__,
+                    field=field_name,
+                ))
                 continue
 
             if snapshot_value != current_value:
-                fields_changed[field] = {
+                fields_changed[field_name] = {
                     'old': snapshot_value,
-                    'new': current_value
+                    'new': current_value,
                 }
         return fields_changed
 
-    def _ondelta_dispatch_notifications(self):
+    def _ondelta_dispatch_notifications(self, fields_changed, recursing=False):
 
-        fields_changed = self._ondelta_get_differences()
+        # Take a snapshot so we can tell if anything changes inside the ondelta_* methods
+        self._ondelta_take_snapshot()
 
         for field, changes in fields_changed.items():
 
-            # Update the snapshot so if the method calls save() we won't recurse
-            setattr(self._ondelta_shadow, field, changes['new'])
-
             # Call individual field ondelta methods
-            method_name = "ondelta_{}".format(field)
-            if hasattr(self, method_name):
-                getattr(self, method_name)(changes['old'], changes['new'])
+            method = getattr(self, 'ondelta_{field}'.format(field=field), None)
+            if method is not None:
+                method(changes['old'], changes['new'])
 
         # If any fields changed, call aggregate ondelta_all method
-        if fields_changed.keys():
-            self.ondelta_all(fields_changed=fields_changed)
+        self.ondelta_all(fields_changed=fields_changed)
+
+        # If any fields were changed by the methods called here, recurse
+        fields_changed_by_ondelta_methods = self._ondelta_get_differences()
+        if fields_changed_by_ondelta_methods:
+            self._ondelta_dispatch_notifications(fields_changed_by_ondelta_methods, recursing=True)
+            # Once all recursive changes have been made, persist them
+            if not recursing:
+                self.save()
 
     def ondelta_all(self, fields_changed):
         """
@@ -71,6 +96,12 @@ class OnDeltaMixin(models.Model):
         pass
 
     def save(self, *args, **kwargs):
+        already_saved = self.pk
         super_return = super(OnDeltaMixin, self).save(*args, **kwargs)
-        self._ondelta_dispatch_notifications()
+        if already_saved:
+            fields_changed = self._ondelta_get_differences()
+            if fields_changed:
+                self._ondelta_dispatch_notifications(fields_changed)
+        else:
+            self._ondelta_take_snapshot()
         return super_return
