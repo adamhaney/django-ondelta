@@ -1,7 +1,8 @@
 Django==1.7.4
+django-dynamic-fixture==1.8.1
 django-nose==1.3
 flake8==2.3.0
-ipdbplugin==1.4
+ipdbplugin==1.4.1
 ipython==2.4.1
 mock==1.0.1
-nose==1.3.0
+nose==1.3.4

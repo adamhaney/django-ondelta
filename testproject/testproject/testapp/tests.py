@@ -4,6 +4,8 @@ from mock import Mock, patch, call
 
 from django.test import TestCase
 
+from django_dynamic_fixture import G, N
+
 from .models import Foo, Bar
 
 
@@ -70,6 +72,52 @@ class OndeltaMethodCallUnitTests(TestCase):
                 ),
             ]
         )
+
+
+class WorkFlowTests(TestCase):
+
+    def setUp(self):
+        self.foo = G(Foo, char_field='foo')
+
+    def test_get_from_db(self):
+        foo = Foo.objects.get(char_field='foo')
+        foo.char_field = 'bar'
+        foo.save()
+        foo.char_field = 'baz'
+        foo.save()
+        self.assertEqual(foo.char_field_delta_count, 2)
+
+    def test_create(self):
+        foo = Foo.objects.create(char_field='foo')
+        foo.char_field = 'bar'
+        foo.save()
+        foo.char_field = 'baz'
+        foo.save()
+        self.assertEqual(foo.char_field_delta_count, 2)
+
+    def test_construct(self):
+        foo = Foo(char_field='foo')
+        foo.char_field = 'bar'
+        foo.save()
+        foo.char_field = 'baz'
+        foo.save()
+        self.assertEqual(foo.char_field_delta_count, 1)
+
+    def test_g(self):
+        foo = G(Foo, char_field='foo')
+        foo.char_field = 'bar'
+        foo.save()
+        foo.char_field = 'baz'
+        foo.save()
+        self.assertEqual(foo.char_field_delta_count, 2)
+
+    def test_n(self):
+        foo = N(Foo, char_field='foo')
+        foo.char_field = 'bar'
+        foo.save()
+        foo.char_field = 'baz'
+        foo.save()
+        self.assertEqual(foo.char_field_delta_count, 1)
 
 
 class SaveChangesMadeByOndeltaMethodTests(TestCase):
