@@ -122,7 +122,7 @@ class WorkFlowTests(TestCase):
 
 class SaveChangesMadeByOndeltaMethodTests(TestCase):
 
-    @patch('ondelta.models.OnDeltaMixin.ondelta_all')
+    @patch('ondelta.models.OnDeltaMixin.post_ondelta_signalondelta_all')
     def setUp(self, ondelta_all_mock):
 
         self.ondelta_all_mock = ondelta_all_mock
@@ -188,7 +188,7 @@ class PostOnDeltaSignalTests(TestCase):
     def setUp(self):
         self.foo = Foo.objects.create(char_field='original_value')
 
-    @patch('ondelta.signals.post_ondelta_signal')
+    @patch('ondelta.signals.post_ondelta_signal.send')
     def test_signal_generated_with_correct_kwargs_on_any_delta(self, signal_mock):
         self.foo.char_field='second_value'
         self.foo.save()
@@ -202,9 +202,9 @@ class PostOnDeltaSignalTests(TestCase):
             instance=self.foo
         )
 
-    @patch('ondelta.signals.post_ondelta_signal')
+    @patch('ondelta.signals.post_ondelta_signal.send')
     def test_signal_not_generated_when_no_changes(self, signal_mock):
-        foo.save()
+        self.foo.save()
         self.assertFalse(signal_mock.called)
 
 
