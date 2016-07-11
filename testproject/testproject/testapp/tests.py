@@ -183,6 +183,33 @@ class SaveChangesMadeByOndeltaMethodTests(TestCase):
         )
 
 
+class PostOnDeltaSignalTests(TestCase):
+
+    def setUp(self):
+        self.foo = Foo.objects.create(char_field='original_value')
+
+    @patch('ondelta.signals.post_ondelta_signal.send')
+    def test_signal_generated_with_correct_kwargs_on_any_delta(self, signal_mock):
+        signal_mock.reset_mock()
+        self.foo.char_field='second_value'
+        self.foo.save()
+        signal_mock.assert_called_once_with(
+            fields_changed={
+                'char_field': {
+                    'old': 'original_value',
+                    'new': 'second_value',
+                }
+            },
+            instance=self.foo, 
+            sender=Foo,
+        )
+
+    @patch('ondelta.signals.post_ondelta_signal.send')
+    def test_signal_not_generated_when_no_changes(self, signal_mock):
+        self.foo.save()
+        self.assertFalse(signal_mock.called)
+
+
 class SupportedRelatedFieldTypeTests(TestCase):
 
     def setUp(self):
