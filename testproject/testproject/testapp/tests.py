@@ -122,7 +122,7 @@ class WorkFlowTests(TestCase):
 
 class SaveChangesMadeByOndeltaMethodTests(TestCase):
 
-    @patch('ondelta.models.OnDeltaMixin.post_ondelta_signalondelta_all')
+    @patch('ondelta.models.OnDeltaMixin.ondelta_all')
     def setUp(self, ondelta_all_mock):
 
         self.ondelta_all_mock = ondelta_all_mock
