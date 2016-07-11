@@ -93,8 +93,6 @@ class OnDeltaMixin(models.Model):
             # Once all recursive changes have been made, persist them
             if not recursing:
                 self.save()
-        post_ondelta_signal.send(sender=self.__class__, fields_changed=fields_changed, instance=self)
-
 
     def ondelta_all(self, fields_changed):
         """
@@ -111,4 +109,5 @@ class OnDeltaMixin(models.Model):
             fields_changed = self._ondelta_get_differences()
             if fields_changed:
                 self._ondelta_dispatch_notifications(fields_changed)
+                post_ondelta_signal.send(sender=self.__class__, fields_changed=fields_changed, instance=self)
         return super_return

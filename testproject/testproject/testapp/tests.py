@@ -200,7 +200,8 @@ class PostOnDeltaSignalTests(TestCase):
                     'new': 'second_value',
                 }
             },
-            instance=self.foo
+            instance=self.foo, 
+            sender=Foo,
         )
 
     @patch('ondelta.signals.post_ondelta_signal.send')
