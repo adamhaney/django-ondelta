@@ -6,6 +6,8 @@ import logging
 from django.db import models
 from django.utils.functional import cached_property
 
+from .signals import post_ondelta_signal
+
 logger = logging.getLogger('ondelta')
 
 
@@ -83,6 +85,7 @@ class OnDeltaMixin(models.Model):
 
         # If any fields changed, call aggregate ondelta_all method
         self.ondelta_all(fields_changed=fields_changed)
+        post_ondelta_signal.send(sender=self.__class__, fields_changed=fields_changed, instance=self)
 
         # If any fields were changed by the methods called here, recurse
         fields_changed_by_ondelta_methods = self._ondelta_get_differences()
