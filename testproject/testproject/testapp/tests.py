@@ -190,6 +190,7 @@ class PostOnDeltaSignalTests(TestCase):
 
     @patch('ondelta.signals.post_ondelta_signal.send')
     def test_signal_generated_with_correct_kwargs_on_any_delta(self, signal_mock):
+        signal_mock.reset_mock()
         self.foo.char_field='second_value'
         self.foo.save()
         signal_mock.assert_called_once_with(
