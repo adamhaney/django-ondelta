@@ -32,7 +32,7 @@ setup(
     author="Adam Haney",
     author_email="adam.haney@getbellhops.com",
     description=DESCRIPTION,
-    license="LGPL",
+    license="MIT",
     keywords="Django, observer",
     url="https://github.com/adamhaney/django-ondelta",
     packages=['ondelta'],
