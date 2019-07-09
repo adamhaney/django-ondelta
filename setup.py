@@ -28,9 +28,9 @@ def read(fname):
 
 setup(
     name="ondelta",
-    version="0.6.0",
+    version="0.7.0",
     author="Adam Haney",
-    author_email="adam.haney@getbellhops.com",
+    author_email="adam@eatonthehouse.com",
     description=DESCRIPTION,
     license="MIT",
     keywords="Django, observer",
@@ -39,7 +39,7 @@ setup(
     long_description=read('README.md'),
     dependency_links=[],
     install_requires=[
-        'django>=1.5'
+        'django>=2.0'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -49,11 +49,8 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Internet :: WWW/HTTP',

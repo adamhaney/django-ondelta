@@ -213,19 +213,55 @@ class PostOnDeltaSignalTests(TestCase):
 class SupportedRelatedFieldTypeTests(TestCase):
 
     def setUp(self):
-        self.foo = Foo.objects.create()
+        self.foo = Foo.objects.create(char_field='Initial Value')
         self.bar = Bar.objects.create()
 
+        self.new_fk = Foo.objects.create(char_field='New Value')
+
+    def test_fields_to_watch(self):
+        self.assertEqual(
+            self.bar._ondelta_fields_to_watch,
+            ['one_to_one', 'foreign_key']
+        )
+
     @patch('testproject.testapp.models.Bar.ondelta_foreign_key')
-    def test_foreign_key(self, fk_mock):
+    def test_foreign_key_null_to_value(self, fk_mock):
+        self.assertEqual(
+            self.bar.foreign_key,
+            None
+        )
+        self.assertEqual(
+            self.bar._ondelta_shadow.foreign_key,
+            None
+        )
+
         self.bar.foreign_key = self.foo
         self.bar.save()
         fk_mock.assert_called_once_with(None, self.foo)
 
     @patch('testproject.testapp.models.Bar.ondelta_one_to_one')
-    def test_one_to_one(self, o2o_mock):
+    def test_one_to_one_null_to_value(self, o2o_mock):
+        self.assertEqual(
+            self.bar.one_to_one,
+            None
+        )
+        self.assertEqual(
+            self.bar._ondelta_shadow.one_to_one,
+            None
+        )
+
         self.bar.one_to_one = self.foo
         self.bar.save()
+
+        self.assertEqual(
+            self.bar.one_to_one,
+            self.foo
+        )
+        self.assertEqual(
+            self.bar._ondelta_shadow.one_to_one,
+            self.foo
+        )
+
         o2o_mock.assert_called_once_with(None, self.foo)
 
 

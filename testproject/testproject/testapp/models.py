@@ -16,9 +16,21 @@ class Foo(OnDeltaMixin):
 
 class Bar(OnDeltaMixin):
 
-    one_to_one = models.OneToOneField(Foo, related_name='one_to_one_reverse', null=True)
-    foreign_key = models.ForeignKey(Foo, related_name='foreign_key_reverse', null=True)
-    many_to_many = models.ManyToManyField(Foo, related_name='many_to_many_reverse')
+    one_to_one = models.OneToOneField(
+        Foo,
+        related_name='one_to_one_reverse',
+        null=True, on_delete=models.SET_NULL
+    )
+    foreign_key = models.ForeignKey(
+        Foo,
+        related_name='foreign_key_reverse',
+        null=True,
+        on_delete=models.SET_NULL
+    )
+    many_to_many = models.ManyToManyField(
+        Foo,
+        related_name='many_to_many_reverse'
+    )
 
     def ondelta_one_to_one(self, old, new):
         pass
